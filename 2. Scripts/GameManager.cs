@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     public Transform player;
 
 
-    public Transform[] spawnPoints;
+    //public Transform[] spawnPoints;
     Transform spawnPoint;
 
 
@@ -24,44 +24,31 @@ public class GameManager : MonoBehaviour
 
     public bool currentLive = false;
 
-    public int life = 3;
+
+
     // Start is called before the first frame update
 
     private void Awake()
     {
         Time.timeScale = 1;
         currentLive = true;
+
+
+
+
     }
     void Start()
     {
+
         isStart = true;
 
-        spawnPoint = spawnPoints[0];
+        //spawnPoint = spawnPoints[0];
     }
 
     // Update is called once per frame
     void Update()
     {
-        //if (isStart == false)
-        //{
-        //    return;
-        //}
 
-        //else
-        //{
-        //    time += Time.deltaTime;
-
-        //    sec = (int)time;
-
-        //    if (sec == 60)
-        //    {
-        //        min++;
-
-        //        time = 0;
-        //    }
-
-        //    timeText.text = min.ToString("00") + ":" + sec.ToString("00");
-        //} 
 
     }
 

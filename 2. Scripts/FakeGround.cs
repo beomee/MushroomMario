@@ -51,13 +51,17 @@ public class FakeGround : MonoBehaviour
     {
         if (collision.gameObject.tag == "Player")
         {
-            rigid.constraints = RigidbodyConstraints2D.None;
+            StartCoroutine(DropGround_Coroutine());
         }
 
     }
 
 
-
+    IEnumerator DropGround_Coroutine()
+    {
+        yield return new WaitForSeconds(0.1f);
+        rigid.constraints = RigidbodyConstraints2D.None;
+    }
 
 
 }

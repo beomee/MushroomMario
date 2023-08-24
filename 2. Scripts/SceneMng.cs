@@ -8,13 +8,13 @@ using UnityEngine.SceneManagement;
 public class SceneMng : MonoBehaviour
 {
     public Button startBtn;
-    public Button exitBtn;
+    //public Button exitBtn;
 
     // Start is called before the first frame update
     void Start()
     {
         startBtn.onClick.AddListener(StartPlayScene);
-        exitBtn.onClick.AddListener(ExitGame);
+        //exitBtn.onClick.AddListener(ExitGame);
 
     }
 
@@ -28,6 +28,7 @@ public class SceneMng : MonoBehaviour
 #if UNITY_EDITOR
 
         UnityEditor.EditorApplication.isPlaying = false;
+        //Json.instance.DataDelete();
 
 #else
 Application.Quit();

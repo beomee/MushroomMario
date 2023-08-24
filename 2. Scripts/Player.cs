@@ -5,13 +5,15 @@ using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
+    int dir; // 방향을 결정할 변수
+    bool isJumping; // 점프 중인지 확인하는 함수 
+    static bool isSave;
+
     Player player;
     public Rigidbody2D rigid;
     CapsuleCollider2D coll;
     public SpriteRenderer sr;
     Animator anim;
-    public GameManager gm;
-
     public GameObject respawnImg;
     public float moveSpeed;
     public float jumpPower;
@@ -21,20 +23,85 @@ public class Player : MonoBehaviour
     //public Trigger triggerClass;
     public FakeGround fakeGroundClass;
     public Helly[] hellys;
- 
+    public GameManager gm;
+    public static int life = 2;
+    public AudioManager audioManager;
+
+    public bool isTouched_Malady1;
+    public bool isTouched_Malady2;
+    public bool isTouched_Malady3;
+
+    public Vector2 inputvec;
+
+
+    bool isGround;
+
+    [SerializeField]
+    private string PlayerJumpSE; // 점프사운드
+    
+    [SerializeField]
+    private string PlayerDeadSE; // 죽을 때 사운드
+
+    [SerializeField]
+    private string PlayerDeadBgm; // 죽을 때 사운드
+
+    public  Vector2 boxCastSize = new Vector2(0.4f, 0.05f);
+    private float boxCastMaxDistance = 0.7f;
+
+
+    void OnDrawGizmos()
+    {
+        RaycastHit2D raycastHit = Physics2D.BoxCast(transform.position, boxCastSize, 0f, Vector2.down, boxCastMaxDistance, LayerMask.GetMask("Ground"));
+
+        Gizmos.color = Color.red;
+
+        if (raycastHit.collider != null)
+        {
+            Gizmos.DrawWireCube(transform.position + Vector3.down * raycastHit.distance, boxCastSize);
+            isGround = true;
+        }
+        else
+        {
+            isGround = false;
+        }
+    }
+
+    private void Awake()
+    {
+       
+    }
 
     // Start is called before the first frame update
     void Start()
     {
+
+
         player = GetComponent<Player>();
         coll = GetComponent<CapsuleCollider2D>();
         anim = GetComponent<Animator>();
         rigid = GetComponent<Rigidbody2D>();
+        isGround = true;
+
+        if (Json.instance.data.isSaved == false)
+        {
+            transform.position = Json.instance.data.respawnPosition;
+        }
+
+        else
+        {
+            transform.position = Json.instance.data.respawnPosition2;
+        }
+        
+
+
+
+
     }
 
     // Update is called once per frame
     void Update()
     {
+
 
         // 캐릭터가 살아있는 경우에만 조작이 가능하도록 조건
         if (gm.currentLive == true)
@@ -43,6 +110,8 @@ public class Player : MonoBehaviour
             PlayerJump();
         }
 
+
+        
     }
 
 
@@ -57,15 +126,24 @@ public class Player : MonoBehaviour
 
                 break;
 
+            case "FakeGround":
+                anim.SetBool("isJump", false);
+                jumpCount = 0;
+                isGround = true;
+
+                break;
+
+
             case "Obstacle":
                 StartCoroutine(PlayerDead());
 
-                rigid.constraints = RigidbodyConstraints2D.FreezePositionX;
-                rigid.constraints = RigidbodyConstraints2D.FreezePositionY;
+                rigid.constraints = RigidbodyConstraints2D.FreezeRotation | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezePositionX;
+
 
                 anim.SetTrigger("PlayerDead");
 
                 break;
+
 
         }
     }
@@ -84,6 +162,15 @@ public class Player : MonoBehaviour
                 anim.SetTrigger("PlayerDead");
 
                 break;
+
+            case "Save":
+                Json.instance.data.isSaved = true;
+                
+
+
+                break;
+
+
         }
 
 
@@ -93,6 +180,7 @@ public class Player : MonoBehaviour
         {
             case "Trigger1_Helly":
                 hellys[0].rigid.constraints = RigidbodyConstraints2D.None;
+                
                 break;
 
             case "Trigger2_Helly":
@@ -108,8 +196,32 @@ public class Player : MonoBehaviour
                 hellys[4].rigid.constraints = RigidbodyConstraints2D.None;
                 break;
 
+
+
+            case "Trigger7_Malady":
+
+                isTouched_Malady1 = true;
+                break;
+
+            case "Trigger8_Malady":
+                isTouched_Malady2 = true;
+                break;
+
+            case "Trigger9_Malady":
+                isTouched_Malady3 = true;
+
+                break;
+
         }
+
+        
+
+
+
+
     }
+
+     
     void PlayerMove()
     {
 
@@ -160,8 +272,12 @@ public class Player : MonoBehaviour
 
     void PlayerJump()
     {
-        if (Input.GetButtonDown("Jump") && jumpCount == 0)
-        {
+
+        if (isGround == true)
+        { 
+
+          if (Input.GetButtonDown("Jump") && jumpCount == 0)
+          {
             // 위로 힘을 가해서 점프
             rigid.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
 
@@ -170,16 +286,36 @@ public class Player : MonoBehaviour
             // 점프 애니메이션으로 전환 
             anim.SetBool("isJump", true);
 
+            audioManager.PlaySE(PlayerJumpSE, 1, 0.3f);
+            
+          }
+
         }
     }
 
+    void PlayDeadSound()
+    {
+        StartCoroutine(DeadSound_Coroutine());
+    }
+
+    IEnumerator DeadSound_Coroutine()
+    {
+        yield return new WaitForSeconds(0.5f);
+        audioManager.PlaySE(PlayerDeadBgm, 1, 1f);
+    }
+
+
      IEnumerator PlayerDead()
     {
+  
+        audioManager.audioSourceBgm.Stop();
+        audioManager.PlaySE(PlayerDeadSE, 1, 0.3f);
+        PlayDeadSound();
+
         //triggerClass.isTouch = false;
         // 조작 하지 못하도록 bool값 변경 
         gm.currentLive = false;
 
-        gm.life--;
  
         float time = 0;
 
@@ -210,6 +346,8 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(2f);
         respawnImg.SetActive(false);
         SceneManager.LoadScene("2. PlayScene");
+        life--;
+
     }
 
 

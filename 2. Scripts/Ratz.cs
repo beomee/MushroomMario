@@ -8,14 +8,15 @@ public class Ratz : MonoBehaviour
     int dir; // 방향을 결정할 변수
     bool isChange = false; // 방향 바꿈을 확인하는 변수 
 
-    //Animator anim;
+    Animator anim;
     Rigidbody2D rigid;
     SpriteRenderer sr;
 
+    
     // Start is called before the first frame update
     void Start()
     {
-        //anim = GetComponent<Animator>();
+        anim = GetComponent<Animator>();
         rigid = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
 
@@ -38,6 +39,7 @@ public class Ratz : MonoBehaviour
 
         if (dir != 0)
         {
+            
 
             RaycastHit2D hit
                 = Physics2D.Raycast(transform.position + new Vector3(dir * 1.0f, 0, 0), Vector2.down, 1);
@@ -84,7 +86,7 @@ public class Ratz : MonoBehaviour
     void Dir()
     {
 
-        //anim.SetInteger("dir", dir);
+        anim.SetInteger("dir", dir);
 
 
 
@@ -103,7 +105,7 @@ public class Ratz : MonoBehaviour
         if (collision.gameObject.name == "Player")
         {
             rigid.constraints = RigidbodyConstraints2D.FreezePositionX;
-           
+            anim.SetTrigger("Dead");
         }
     }
 }

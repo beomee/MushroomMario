@@ -20,7 +20,7 @@ public class Trigger : MonoBehaviour
             helly.rigid.constraints = RigidbodyConstraints2D.None;
 
 
-        
+
         }
 
     }
