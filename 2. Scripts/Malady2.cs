@@ -24,7 +24,7 @@ public class Malady2 : MonoBehaviour
 
         if (player.isTouched_Malady2 == true && isMoveStop == false)
         {
-            moveSpeed = 50f;
+            moveSpeed = 75f;
 
             // 현재 위치에서 목표 위치로 부드럽게 이동
             Vector3 newPosition = new Vector3(Mathf.MoveTowards(transform.position.x, targetX, moveSpeed * Time.deltaTime), transform.position.y, transform.position.z);
